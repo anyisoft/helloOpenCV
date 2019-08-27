@@ -5,7 +5,7 @@
 #include <opencv2\video.hpp>
 #include <iostream>
 
-/*
+
 // 显示一幅图片
 int main(int argc, char** argv) {
 	std::cout << argv[1] << std::endl;
@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
 
 	return 0;
 }
-*/
+
 /*
 // 显示视频
 int main(int argc, char** argv) {
@@ -383,6 +383,7 @@ int main(int argc, char** argv) {
 	return 0;
 }
 */
+/*
 // Exercise 2-5
 int g_slider_position = 0;
 cv::VideoCapture g_cap;
@@ -432,3 +433,4 @@ int main(int argc, char** argv) {
 
 	return 0;
 }
+*/
