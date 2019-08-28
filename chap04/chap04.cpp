@@ -10,6 +10,8 @@
 //#include <opencv2\videoio.hpp>
 //#include <opencv2\video.hpp>
 
+cv::Scalar g_colorBlack(0, 0, 0);
+cv::Scalar g_colorWhite(255, 255, 255);
 std::vector<cv::Scalar> g_vecColors;
 
 
@@ -43,12 +45,13 @@ void earse(cv::Mat &img, cv::Point &cvpOrigin, const cv::Size &char_size,
 
 void restore(cv::Mat &img, cv::Mat &text, int curRow, int curCol, 
 	const cv::Size &char_size, const cv::Scalar& colorBackGround,
-	const cv::String &window
+	const cv::String &window, bool bColorful
 )
 {
 	int curColor = 0;
 	cv::Point cvpOrigin;
 	cv::String cvstr(" ");
+	cv::Scalar curScalar;
 
 	cvpOrigin.x = curCol * char_size.width;
 	cvpOrigin.y = (curRow + 1) * char_size.height;
@@ -57,10 +60,38 @@ void restore(cv::Mat &img, cv::Mat &text, int curRow, int curCol,
 	uchar old_char = text.at<uchar>(curRow, curCol);
 	if (isdigit(old_char)) {
 		curColor = old_char - 0x30;
+		curScalar = bColorful ? g_vecColors[curColor] : g_colorWhite;
 		cvstr.at(0) = old_char;
-		cv::putText(img, cvstr, cvpOrigin, cv::FONT_HERSHEY_SIMPLEX, 1, g_vecColors[curColor]);
+		cv::putText(img, cvstr, cvpOrigin, cv::FONT_HERSHEY_SIMPLEX, 1, curScalar);
 		cv::imshow(window, img);
 	}
+}
+
+void colorful(cv::Mat &img, cv::Mat &text, const cv::Size& char_size,
+	const cv::String& window, bool bColorful)
+{
+	int curColor = 0;
+	uchar curChar;
+	cv::Point cvpOrigin;
+	cv::String cvstr(" ");
+	cv::Scalar curScalar;
+
+	// 重画文字
+	for (int i = 0; i < text.rows; i++) {
+		for (int j = 0; j < text.cols; j++) {
+			curChar = text.at<uchar>(i, j);
+			if (isdigit(curChar ) ) {
+				curColor = curChar - 0x30;
+				curScalar = bColorful ? g_vecColors[curColor] : g_colorWhite;
+				cvstr.at(0) = curChar;
+				cvpOrigin.x = j * char_size.width;
+				cvpOrigin.y = (i + 1) * char_size.height;
+				cv::putText(img, cvstr, cvpOrigin, cv::FONT_HERSHEY_SIMPLEX, 1, curScalar);
+			}
+		}
+	}
+	
+	cv::imshow(window, img);
 }
 
 int main()
@@ -196,6 +227,7 @@ int main()
 	int curRow = 0;
 	int curCol = 0;
 	int curColor = 0;
+	bool bColorful = true;
 
 	cv::Size char_size;
 	for (std::vector<cv::String>::iterator it = vecChars.begin(); it != vecChars.end(); it++) {
@@ -217,8 +249,6 @@ int main()
 	cv::namedWindow(cvsWindow, cv::WINDOW_AUTOSIZE);
 	cv::imshow(cvsWindow, img);
 
-	cv::Scalar colorBlack(0, 0, 0);
-	cv::Scalar colorWhite(255, 255, 255);
 	cv::String cvstrBlank(" ");
 	cv::String cvstrCursor("I");
 	cv::String cvstr;
@@ -231,7 +261,7 @@ int main()
 		if (0 == (iCount/10)%2) {
 			cvpOrigin.x = curCol * char_size.width;
 			cvpOrigin.y = (curRow + 1) * char_size.height;
-			earse(img, cvpOrigin, char_size, colorBlack);
+			earse(img, cvpOrigin, char_size, g_colorBlack);
 			cv::imshow(cvsWindow, img);
 		}
 		
@@ -260,7 +290,7 @@ int main()
 			// 擦除光标
 			cvpOrigin.x = curCol * char_size.width;
 			cvpOrigin.y = (curRow + 1) * char_size.height;
-			earse(img, cvpOrigin, char_size, colorBlack);
+			earse(img, cvpOrigin, char_size, g_colorBlack);
 
 			cvstr.at(0) = input_char;
 			text.at<uchar>(curRow, curCol) = input_char;
@@ -278,7 +308,7 @@ int main()
 		}
 		else if (0x08 == input_char) { // 退格
 			// 
-			restore(img, text, curRow, curCol, char_size, colorBlack, cvsWindow);
+			restore(img, text, curRow, curCol, char_size, g_colorBlack, cvsWindow, bColorful);
 
 			curCol--;
 			if (curCol < 0) {
@@ -294,7 +324,7 @@ int main()
 			// left
 			// 擦除光标
 			// 重写当前字符
-			restore(img, text, curRow, curCol, char_size, colorBlack, cvsWindow);
+			restore(img, text, curRow, curCol, char_size, g_colorBlack, cvsWindow, bColorful);
 
 			curCol--;
 			if (curCol < 0) {
@@ -309,7 +339,7 @@ int main()
 			// top
 			// 擦除光标
 			// 重写当前字符
-			restore(img, text, curRow, curCol, char_size, colorBlack, cvsWindow);
+			restore(img, text, curRow, curCol, char_size, g_colorBlack, cvsWindow, bColorful);
 
 			curRow--;
 			if (curRow < 0) {
@@ -320,7 +350,7 @@ int main()
 			// right
 			// 擦除光标
 			// 重写当前字符
-			restore(img, text, curRow, curCol, char_size, colorBlack, cvsWindow);
+			restore(img, text, curRow, curCol, char_size, g_colorBlack, cvsWindow, bColorful);
 
 			curCol++;
 			if (curCol > COLS-1) {
@@ -335,7 +365,7 @@ int main()
 			// down
 			// 擦除光标
 			// 重写当前字符
-			restore(img, text, curRow, curCol, char_size, colorBlack, cvsWindow);
+			restore(img, text, curRow, curCol, char_size, g_colorBlack, cvsWindow, bColorful);
 
 			curRow++;
 			if (curRow > ROWS-1) {
@@ -346,7 +376,7 @@ int main()
 			// 回车
 			// 擦除光标
 			// 重写当前字符
-			restore(img, text, curRow, curCol, char_size, colorBlack, cvsWindow);
+			restore(img, text, curRow, curCol, char_size, g_colorBlack, cvsWindow, bColorful);
 
 			curRow++;
 			if (curRow > ROWS - 1) {
@@ -354,12 +384,17 @@ int main()
 			}
 			curCol = 0;
 		}
+		else if (0x43 == input_char || 0x63 == input_char) {
+			// 颜色控制
+			bColorful = !bColorful;
+			colorful(img, text, char_size, cvsWindow, bColorful);
+		}
 
 		// 显示光标
 		if (1 == (iCount / 10) % 2) {
 			cvpOrigin.x = curCol * char_size.width;
 			cvpOrigin.y = (curRow + 1) * char_size.height;
-			cv::putText(img, cvstrCursor, cvpOrigin, cv::FONT_HERSHEY_SIMPLEX, 1, colorWhite);
+			cv::putText(img, cvstrCursor, cvpOrigin, cv::FONT_HERSHEY_SIMPLEX, 1, g_colorWhite);
 			cv::imshow("Exercise4-1", img);
 		}
 		
