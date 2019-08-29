@@ -86,7 +86,8 @@ void colorful(cv::Mat &img, cv::Mat &text, const cv::Size& char_size,
 				cvstr.at(0) = curChar;
 				cvpOrigin.x = j * char_size.width;
 				cvpOrigin.y = (i + 1) * char_size.height;
-				cv::putText(img, cvstr, cvpOrigin, cv::FONT_HERSHEY_SIMPLEX, 1, curScalar);
+				cv::putText(img, cvstr, cvpOrigin, cv::FONT_HERSHEY_SIMPLEX, 
+					1, curScalar);
 			}
 		}
 	}
@@ -94,9 +95,116 @@ void colorful(cv::Mat &img, cv::Mat &text, const cv::Size& char_size,
 	cv::imshow(window, img);
 }
 
+template <typename Tp, typename Tp_v> Tp getIntegral(cv::Mat& img, 
+	int row, int col)
+{
+	Tp sum = 0;
+	for (int i = 0; i <= row; i++) {
+		for (int j = 0; j <= col; j++) {
+			sum += img.at<Tp_v>(i, j);
+		}
+	}
+
+	return sum;
+}
+
+/**
+ * 快速积分图计算
+ */
+template <typename Tp, typename Tp_v> void fastIntegral(cv::Mat& img, 
+	cv::Mat &integral)
+{
+	Tp sum = 0;
+	int i = 0;
+	int j = 0;
+
+	// 首先计算出第一行
+	for (; j < img.cols; j++) {
+		sum += img.at<Tp_v>(i, j);
+		integral.at<Tp>(i, j) = sum;
+	}
+
+	// 其余各行
+	for (i = 1; i < img.rows; i++) {
+		sum = 0;
+		for (j = 0; j < img.cols; j++) {
+			sum += img.at<Tp_v>(i, j);
+			integral.at<Tp>(i, j) = sum + integral.at<Tp>(i-1, j);
+		}
+	}
+}
+
+/**
+ * 计算矩形像素和
+ */
+template <typename Tp, typename Tp_v> 
+Tp getPixesSumNormal(const cv::Mat &img, const cv::Rect &rect)
+{
+	Tp sum = 0;
+	int iEnd = rect.y + rect.height;
+	int jEnd = rect.x + rect.width;
+	for (int i = rect.y; i <= iEnd; i++) {
+		for (int j = rect.x; j <= jEnd; j++) {
+			sum += img.at<Tp_v>(i, j);
+		}
+	}
+
+	return sum;
+}
+
+/**
+ * 使用积分图计算矩形像素和
+ * 
+ * ----------------------------------------------
+ * (0,0)          |         |                   |
+ *               D|        B|                   |
+ *           ----------------                   |
+ *                |  矩形   |                   |
+ *               C|        A|                   |
+ *           -----|----------                   |
+ *                                              |
+ * A-B-C+D 就是矩形像素和
+ */
+template <typename Tp> 
+Tp getPixesSumByIntegral(const cv::Mat &integral, const cv::Rect &rect)
+{
+	Tp sum = 0;
+	Tp sumA = 0;
+	Tp sumB = 0;
+	Tp sumC = 0;
+	Tp sumD = 0;
+
+	int iA = rect.y + rect.height;
+	int jA = rect.x + rect.width;
+	int iB = rect.y - 1;
+	int jB = rect.x + rect.width;
+	int iC = rect.y + rect.height;
+	int jC = rect.x - 1;
+	int iD = rect.y - 1;
+	int jD = rect.x - 1;
+
+	sumA = integral.at<Tp>(iA, jB);
+
+	if (iB > 0) {
+		sumB = integral.at<Tp>(iB, jB);
+	}
+
+	if (jC > 0) {
+		sumC = integral.at<Tp>(iC, jC);
+	}
+
+	if (iD > 0 && jD > 0) {
+		sumD = integral.at<Tp>(iD, jD);
+	}
+
+	sum = sumA - sumB - sumC + sumD;
+
+	return sum;
+}
+
 int main()
 {
-    std::cout << "Chapter 4 examples!\n";
+    //std::cout << "Chapter 4 examples!\n";
 	/*
 	cv::Mat m = cv::Mat::eye(10, 10, CV_32FC1);
 	std::cout << "Element(3, 3) is " << m.at<float>(3, 3) << std::endl;
@@ -175,7 +283,7 @@ int main()
 		printf("(%3d, %3d) %f\n", node->idx[0], node->idx[1], *it);
 	}
 	*/
-	
+	/*
 	// Exercise4-1
 	cv::String cvsWindow("Exercise4-1");
 
@@ -402,9 +510,111 @@ int main()
 	}
 	
 	cv::destroyWindow("Exercise4-1");
+	*/
+    // Exercise 4-2
+	float pixesSum = 0;
+	int x = 0;
+	int y = 0;
+	int64 startTick = 0;
+	int64 stopTick = 0;
+	int64 duration = 0;
+
+	cv::String cvsImg("Image");
+	cv::String cvsIntegral("Integral");
+
+	//cv::Mat img = cv::Mat::eye(100, 200, CV_8UC1);
+	cv::Mat img = cv::Mat::ones(100, 200, CV_8UC1);
+	cv::Mat integral = cv::Mat::zeros(100, 200, CV_32FC1);
+	
+	srand(time(0));
+	for (int i = 0; i < img.rows; i++) {
+		for (int j = 0; j < img.cols; j++) {
+			img.at<uchar>(i, j) = rand();
+		}
+	}
+	
+	startTick = cv::getTickCount();
+	for (int m = 0; m < integral.rows; m++) {
+		for (int n = 0; n < integral.cols; n++) {
+			integral.at<float>(m, n) = getIntegral<float, uchar>(img, m, n);
+		}
+	}
+	stopTick = cv::getTickCount();
+	duration = stopTick - startTick;
+	std::cout << "normal calculate duration: " << duration << std::endl;
+
+	// 随机选取坐标验证
+	srand(time(0));
+	x = rand() % 100;
+	y = rand() % 200;
+	std::cout << "the (" << x << ", " << y << ") integral value: " 
+		<< integral.at<float>(x, y) << std::endl;
+
+	startTick = cv::getTickCount();
+	fastIntegral<float, uchar>(img, integral);
+	stopTick = cv::getTickCount();
+	duration = stopTick - startTick;
+	std::cout << "fast calculate duration: " << duration << std::endl;
+	std::cout << "the (" << x << ", " << y << ") integral value: "
+		<< integral.at<float>(x, y) << std::endl;
+
+	cv::namedWindow(cvsImg, cv::WINDOW_AUTOSIZE);
+	cv::namedWindow(cvsIntegral, cv::WINDOW_AUTOSIZE);
+
+	cv::imshow(cvsImg, img);
+	cv::imshow(cvsIntegral, integral);
+
+	// 获取原始图像中任意矩形的像素之和
+	cv::Rect rect(10, 20, 10, 10);
+	startTick = cv::getTickCount();
+	pixesSum = getPixesSumNormal<float, uchar>(img, rect);
+	stopTick = cv::getTickCount();
+	duration = stopTick - startTick;
+	std::cout << "pixes sum normal calculate duration: " << duration << std::endl;
+	std::cout << "pixes sum normal calculate: " << pixesSum << std::endl;
+
+	startTick = cv::getTickCount();
+	pixesSum = getPixesSumByIntegral<float>(integral, rect);
+	stopTick = cv::getTickCount();
+	duration = stopTick - startTick;
+	std::cout << "pixes sum integral calculate duration: " << duration << std::endl;
+	std::cout << "pixes sum integral calculate: " << pixesSum << std::endl;
+
+	cv::waitKey(0);
+
+	cv::destroyWindow(cvsImg);
+	cv::destroyWindow(cvsIntegral);
 
 	return 0;
 }
+
+/**
+ * e. 考虑如何修改积分图像，以便可以有效计算出一个45度旋转矩形的和。
+ *    详细描述算法。
+ *    如果计算旋转矩形的和，可以把积分图修改为
+ *    只记录某个方向上的单条线段的像素和，
+ *    而不是整个矩形的和。
+ *    这样可以从左往右扫描，用矩形所在上部的值减去
+ *    刚好不在矩形的点对应的值，再累加这些值。
+ *    可以使用公式y = ax + b 判断确定矩形的点和其下方的点。
+ *
+ *    --------------------------------------------------------------->X
+ *   |    1              /\ 
+ *   |    2            /   \
+ *   |    3          /      \
+ *   |    4         /        \
+ *   |    5         \         /
+ *   |    7          \       /
+ *   |    8           \    /
+ *   |    9            \ /
+ *   |    .
+ *   |    .
+ *   |    .
+ *   |    
+ *   |    
+ *   |    
+ *   Y
+ */
 
 // 运行程序: Ctrl + F5 或调试 >“开始执行(不调试)”菜单
 // 调试程序: F5 或调试 >“开始调试”菜单
