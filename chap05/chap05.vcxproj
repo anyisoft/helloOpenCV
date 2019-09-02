@@ -91,13 +91,13 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\work\opencv_build;D:\work\opencv\modules\core\include;D:\work\opencv\modules\videoio\include;D:\work\opencv\modules\highgui\include;D:\work\opencv\modules\imgcodecs\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\work\opencv_build;D:\work\opencv\modules\core\include;D:\work\opencv\modules\videoio\include;D:\work\opencv\modules\highgui\include;D:\work\opencv\modules\imgcodecs\include;D:\work\opencv\modules\imgproc\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>D:\work\opencv_build\lib\Debug</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_core411d.lib;opencv_highgui411d.lib;opencv_imgcodecs411d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core411d.lib;opencv_highgui411d.lib;opencv_imgcodecs411d.lib;opencv_imgproc411d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
