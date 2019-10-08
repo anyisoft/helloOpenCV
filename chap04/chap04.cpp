@@ -283,7 +283,7 @@ int main()
 		printf("(%3d, %3d) %f\n", node->idx[0], node->idx[1], *it);
 	}
 	*/
-	/*
+	
 	// Exercise4-1
 	cv::String cvsWindow("Exercise4-1");
 
@@ -510,7 +510,8 @@ int main()
 	}
 	
 	cv::destroyWindow("Exercise4-1");
-	*/
+	
+	/*
     // Exercise 4-2
 	float pixesSum = 0;
 	int x = 0;
@@ -584,7 +585,7 @@ int main()
 
 	cv::destroyWindow(cvsImg);
 	cv::destroyWindow(cvsIntegral);
-
+	*/
 	return 0;
 }
 
