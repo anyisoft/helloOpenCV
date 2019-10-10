@@ -1,2 +1,2 @@
 # helloOpenCV
-<<Learning OpenCV3>> exercises program.
+"Learning OpenCV3" exercises program.
