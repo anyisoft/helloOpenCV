@@ -843,7 +843,7 @@ int main(int argc, char** argv) {
 	return 0;
 }
 */
-/*
+
 // Exercise 8-6
 // 在Exercise 4-1 的基础上修改而成
 bool g_bEditing = false;
@@ -1125,7 +1125,7 @@ int main(int argc, char** argv) {
 
 	return 0;
 }
-*/
+
 /*
 // Exercise 8-7
 // 参考Example 11-2、Example 11-1
@@ -1599,7 +1599,7 @@ void detectAndDraw(Mat& img, CascadeClassifier& cascade,
 	imshow("result", frontend);
 }
 */
-
+/*
 // Exercise 8-9
 using namespace cv;
 using namespace std;
@@ -1781,7 +1781,7 @@ int main(int argc, char** argv)
 
 	return 0;
 }
-
+*/
 /*
 // Exercise 8-9
 typedef struct my_structTag {
