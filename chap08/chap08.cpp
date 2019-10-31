@@ -91,7 +91,7 @@ int main()
 	return 0;
 }
 */
-/*
+
 // exercise 8-1
 // 参考exercise 6-3 
 int main(int argc, char** argv) {
@@ -195,7 +195,7 @@ int main(int argc, char** argv) {
 
 	return 0;
 }
-*/
+
 /*
 // exercise 8-2
 // 参考博客：https://blog.csdn.net/jiamuju84/article/details/52893239
@@ -843,7 +843,7 @@ int main(int argc, char** argv) {
 	return 0;
 }
 */
-
+/*
 // Exercise 8-6
 // 在Exercise 4-1 的基础上修改而成
 bool g_bEditing = false;
@@ -1125,7 +1125,7 @@ int main(int argc, char** argv) {
 
 	return 0;
 }
-
+*/
 /*
 // Exercise 8-7
 // 参考Example 11-2、Example 11-1
