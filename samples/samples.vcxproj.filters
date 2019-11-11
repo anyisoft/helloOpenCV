@@ -21,5 +21,14 @@
     <ClCompile Include="SURF_FLANN_matching_homography_Demo.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="distrans.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="watershed.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="grabcut.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

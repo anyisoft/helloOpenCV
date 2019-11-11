@@ -12,14 +12,14 @@ using namespace cv::xfeatures2d;
 using std::cout;
 using std::endl;
 
-const char* keys =
+const char* keys_surf =
         "{ help h |                          | Print help message. }"
         "{ input1 | ./me.bmp          | Path to input image 1. }"
         "{ input2 | ./me_in_scene3.bmp | Path to input image 2. }";
 
-int main( int argc, char* argv[] )
+int main_surf( int argc, char* argv[] )
 {
-    CommandLineParser parser( argc, argv, keys );
+    CommandLineParser parser( argc, argv, keys_surf );
     Mat img_object = imread( parser.get<String>("input1"), IMREAD_GRAYSCALE );
     Mat img_scene = imread( parser.get<String>("input2"), IMREAD_GRAYSCALE );
     if ( img_object.empty() || img_scene.empty() )
@@ -32,6 +32,12 @@ int main( int argc, char* argv[] )
 	img_object.copyTo(uo);
 	img_scene.copyTo(us);
 
+	Mat obj_canny, scene_canny;
+
+
+	cv::Canny(img_object, obj_canny, 147, 220, 3, true); // 1.5:1 or 3:2
+	cv::Canny(img_scene, scene_canny, 147, 220, 3, true); // 1.5:1 or 3:2
+
 	double dFrq = cv::getTickFrequency();
 	int64 i64Begin = cv::getTickCount();
 
@@ -40,10 +46,12 @@ int main( int argc, char* argv[] )
     Ptr<SURF> detector = SURF::create( minHessian );
     std::vector<KeyPoint> keypoints_object, keypoints_scene;
     Mat descriptors_object, descriptors_scene;
-    //detector->detectAndCompute( img_object, noArray(), keypoints_object, descriptors_object );
-    //detector->detectAndCompute( img_scene, noArray(), keypoints_scene, descriptors_scene );
-	detector->detectAndCompute( uo, noArray(), keypoints_object, descriptors_object );
-	detector->detectAndCompute( us, noArray(), keypoints_scene, descriptors_scene );
+    detector->detectAndCompute( img_object, noArray(), keypoints_object, descriptors_object );
+    detector->detectAndCompute( img_scene, noArray(), keypoints_scene, descriptors_scene );
+	//detector->detectAndCompute( uo, noArray(), keypoints_object, descriptors_object );
+	//detector->detectAndCompute( us, noArray(), keypoints_scene, descriptors_scene );
+	//detector->detectAndCompute( obj_canny, noArray(), keypoints_object, descriptors_object ); // 以canny 图像为输入会更加耗时1.7s --> 2.9s
+	//detector->detectAndCompute( scene_canny, noArray(), keypoints_scene, descriptors_scene );
 
     //-- Step 2: Matching descriptor vectors with a FLANN based matcher
     // Since SURF is a floating-point descriptor NORM_L2 is used
@@ -106,6 +114,9 @@ int main( int argc, char* argv[] )
 
     //-- Show detected matches
     imshow("Good Matches & Object detection", img_matches );
+
+	//imshow("obj_canny", obj_canny);
+	//imshow("scene_canny", scene_canny);
 
     waitKey();
     return 0;

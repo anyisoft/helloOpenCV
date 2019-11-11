@@ -154,8 +154,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="distrans.cpp" />
+    <ClCompile Include="grabcut.cpp" />
     <ClCompile Include="samples.cpp" />
     <ClCompile Include="SURF_FLANN_matching_homography_Demo.cpp" />
+    <ClCompile Include="watershed.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
